@@ -1,0 +1,63 @@
+services:
+  server_api:
+    container_name: ecommerce_api_dev_container
+    image: ecommerce_api_dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    environment:
+      REDIS_URL: "redis://redis:6379/1"
+      SECRET_KEY_BASE: "e628c8425e348389d7f808df32d89905a7d794684942ff0f338ae02a89466242d8299294ad05489b7fb9cb1b1c0ec72b099a9a6ba3c7f973bbb4713a3c93c513"
+      MONGODB_DEV_URL: "mongodb://mongodb:27017/ecommerce_api_development"
+      MONGODB_TEST_URL: "mongodb://mongodb:27017/ecommerce_api_test"
+      COMPETITOR_PRICING_API: "https://sinatra-pricing-api.fly.dev"
+      COMPETITOR_API_KEY: "demo123"
+      BINDING: 0.0.0.0
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/src/app
+    depends_on:
+      - redis
+      - mongodb
+    links:
+      - mongodb:mongodb
+    networks:
+      - ecommerce_network
+  mongodb:
+    image: mongo:8.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - ecommerce_network
+  sidekiq:
+    build: .
+    environment:
+      REDIS_URL: "redis://redis:6379/1"
+    volumes:
+      - .:/usr/src/app    
+    tty: true
+    command: "bundle exec sidekiq -C config/sidekiq.yml"
+    networks:
+      - ecommerce_network
+
+  redis:
+    image: redis:7.2
+    restart: unless-stopped
+    volumes:
+    - redis-data:/data
+    networks:
+      - ecommerce_network
+
+volumes:
+  redis-data:
+  mongodb-data:
+
+networks:
+  ecommerce_network:
+    driver: bridge

@@ -1,0 +1,47 @@
+name: "ecommerce_api"
+
+services:
+  rails-app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+    - ../..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Uncomment the next line to use a non-root user for all processes.
+    # user: vscode
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+    depends_on:
+    - redis
+    - mongodb
+
+  redis:
+    image: redis:7.2
+    restart: unless-stopped
+    volumes:
+    - redis-data:/data
+
+  mongodb:
+    container_name: ecommerce_api_development
+    # image: mongodb/mongodb-community-server:latest
+    image: mongo:8.0
+    restart: always
+    # environment:
+      # mongodb client connection
+      # MONGO_INITDB_ROOT_USERNAME: mongoroot
+      # MONGO_INITDB_ROOT_PASSWORD: mongosecret
+    ports:
+      - "27017:27017"
+    volumes:
+    - mongodb-data:/data/db
+
+  
+volumes:
+  redis-data:
+  mongodb-data:

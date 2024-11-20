@@ -1,0 +1,161 @@
+---
+openapi: 3.0.1
+info:
+  title: API
+  version: v1
+paths:
+  "/api/cart/{id}":
+    get:
+      summary: Retrieves the cart
+      tags:
+      - Cart
+      parameters:
+      - name: id
+        in: path
+        description: Cart ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: cart found
+        '404':
+          description: cart not found
+    delete:
+      summary: Deletes the cart
+      tags:
+      - Cart
+      parameters:
+      - name: id
+        in: path
+        description: Cart ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: cart deleted
+  "/api/cart/{id}/remove_item?order_item_id={order_item_id}":
+    delete:
+      summary: Removes an item from the cart
+      tags:
+      - Cart
+      parameters:
+      - name: id
+        in: path
+        description: Cart ID
+        required: true
+        schema:
+          type: string
+      - name: order_item_id
+        in: path
+        description: Order Item ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: item removed
+  "/api/cart":
+    post:
+      summary: Adds a product to the cart
+      tags:
+      - Cart
+      parameters: []
+      responses:
+        '200':
+          description: product added to cart
+        '400':
+          description: invalid attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  description: Product ID
+                quantity:
+                  type: integer
+                  description: Product quantity
+              required:
+              - product_id
+              - quantity
+  "/api/orders":
+    post:
+      summary: Places an order
+      tags:
+      - Orders
+      parameters:
+      - name: cart_id
+        in: query
+        description: Cart ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: order placed successfully
+        '422':
+          description: insufficient inventory
+        '404':
+          description: cart not found
+  "/api/orders/{cart_id}":
+    delete:
+      summary: Cancels an order
+      tags:
+      - Orders
+      parameters:
+      - name: cart_id
+        in: path
+        description: Cart ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: order canceled successfully
+        '404':
+          description: cart not found
+  "/api/products":
+    get:
+      summary: Retrieves all products
+      tags:
+      - Products
+      responses:
+        '200':
+          description: Products found
+          content:
+            application/json:
+              schema:
+                type: object
+  "/api/products/{id}":
+    get:
+      summary: Retrieves a product by ID
+      tags:
+      - Products
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Product not found
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000

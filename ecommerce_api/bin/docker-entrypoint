@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+# Enable jemalloc for reduced memory usage and latency.
+if [ -z "${LD_PRELOAD+x}" ] && [ -f /usr/lib/*/libjemalloc.so.2 ]; then
+  export LD_PRELOAD="$(echo /usr/lib/*/libjemalloc.so.2)"
+fi
+
+# Check for an additional command passed in.
+if [ "$1" = "import" ]; then
+  echo "Running the import:inventory_csv task..."
+  bundle exec rails import:inventory_csv
+  exit 0
+fi
+
+exec "${@}"

@@ -1,0 +1,9 @@
+:concurrency: 5
+:queues:
+  - default
+
+:scheduler:
+  :schedule:
+    update_competitor_prices:
+      cron: "0 * * * *"  # Every hour
+      class: UpdateCompetitorPricesJob
